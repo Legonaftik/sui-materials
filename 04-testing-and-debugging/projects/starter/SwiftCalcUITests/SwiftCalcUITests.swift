@@ -1,15 +1,15 @@
-/// Copyright (c) 2021 Razeware LLC
-/// 
+/// Copyright (c) 2022 Razeware LLC
+///
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
 /// in the Software without restriction, including without limitation the rights
 /// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 /// copies of the Software, and to permit persons to whom the Software is
 /// furnished to do so, subject to the following conditions:
-/// 
+///
 /// The above copyright notice and this permission notice shall be included in
 /// all copies or substantial portions of the Software.
-/// 
+///
 /// Notwithstanding the foregoing, you may not use, copy, modify, merge, publish,
 /// distribute, sublicense, create a derivative work, and/or sell copies of the
 /// Software in any work that is designed, intended, or marketed for pedagogical or
@@ -17,7 +17,7 @@
 /// or information technology.  Permission for such use, copying, modification,
 /// merger, publication, distribution, sublicensing, creation of derivative works,
 /// or sale is expressly withheld.
-/// 
+///
 /// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 /// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 /// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,62 +26,70 @@
 /// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 /// THE SOFTWARE.
 
-import SwiftUI
+import XCTest
 
-extension Color {
-  // Return a random color
-  static var random: Color {
-    return Color(
-      red: .random(in: 0...1),
-      green: .random(in: 0...1),
-      blue: .random(in: 0...1)
-    )
+final class SwiftCalcUITests: XCTestCase {
+
+  override func setUpWithError() throws {
+    continueAfterFailure = false
   }
-}
 
-struct DisplayView: View {
-  @Binding var display: String
-
-  var body: some View {
-    if #available(iOS 15.0, *) {
-      let _ = Self._printChanges()
-    }
-    HStack {
-      if display.isEmpty {
-        Text("0")
-          .accessibility(identifier: "display")
-          .padding(.horizontal, 5)
-          .frame(
-            maxWidth: .infinity,
-            alignment: .trailing
-          )
-          .overlay(
-            RoundedRectangle(
-              cornerRadius: 8)
-              .stroke(lineWidth: 2)
-              .foregroundColor(Color.gray)
-          )
-      } else {
-        Text(display)
-          .accessibility(identifier: "display")
-          .padding(.horizontal, 5)
-          .frame(
-            maxWidth: .infinity,
-            alignment: .trailing
-          )
-          .overlay(
-            RoundedRectangle(cornerRadius: 8)
-              .stroke(lineWidth: 2)
-              .foregroundColor(Color.gray)
-          )
-      }
-    }
-    .background(Color.random)
+  override func tearDownWithError() throws {
   }
-}
 
-struct DisplayView_Previews: PreviewProvider {
-  static var previews: some View {
-    DisplayView(display: .constant("123"))
+  func testPressMemoryPlusAtAppStartShowZeroInDisplay() throws {
+    let app = XCUIApplication()
+    app.launch()
+
+    let memoryButton = app.buttons["M+"]
+    memoryButton.tap()
+
+    let display = app.staticTexts["display"]
+    let displayText = display.label
+    XCTAssert(displayText == "0")
+  }
+
+  func testAddingTwoDigits() {
+    let app = XCUIApplication()
+    app.launch()
+
+    let threeButton = app.buttons["3"]
+    threeButton.tap()
+
+    let addButton = app.buttons["+"]
+    addButton.tap()
+
+    let fiveButton = app.buttons["5"]
+    fiveButton.tap()
+
+    let equalButton = app.buttons["="]
+    equalButton.tap()
+
+    let display = app.staticTexts["display"]
+    let displayText = display.label
+    XCTAssertEqual(displayText, "8.0")
+  }
+
+
+  func testGestureToClearMemory() {
+    let app = XCUIApplication()
+    app.launch()
+
+    let threeButton = app.buttons["3"]
+    threeButton.tap()
+    let fiveButton = app.buttons["5"]
+    fiveButton.tap()
+
+    let memoryButton = app.buttons["M+"]
+    memoryButton.tap()
+
+    let memoryDisplay = app.staticTexts["memoryDisplay"]
+    XCTAssert(memoryDisplay.exists)
+#if targetEnvironment(macCatalyst)
+    memoryDisplay.doubleTap()
+#else
+    memoryDisplay.swipeLeft()
+#endif
+    XCTAssertFalse(memoryDisplay.exists)
   }
 }
