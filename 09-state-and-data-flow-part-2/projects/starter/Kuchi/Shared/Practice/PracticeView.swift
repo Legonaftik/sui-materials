@@ -35,12 +35,16 @@ import SwiftUI
 /// Displays the practice view with question and potential answers (choices).
 struct PracticeView: View {
   @Binding var challengeTest: ChallengeTest?
+  @Binding var numberOfAnswered: Int
   @Binding var userName: String
   
   @ViewBuilder
   var body: some View {
     if challengeTest != nil {
-      ChallengeView(challengeTest: challengeTest!)
+      ChallengeView(
+        challengeTest: challengeTest!,
+        numberOfAnswered: $numberOfAnswered
+      )
     } else {
       CongratulationsView(userName: userName)
     }
@@ -57,6 +61,7 @@ struct PracticeView_Previews: PreviewProvider {
   static var previews: some View {
     return PracticeView(
       challengeTest: .constant(challengeTest),
+      numberOfAnswered: $numberOfAnswered,
       userName: .constant("Johnny Swift")
     )
   }
