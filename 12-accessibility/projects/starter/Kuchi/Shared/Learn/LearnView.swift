@@ -38,11 +38,15 @@ struct LearnView: View {
   var body: some View {
     VStack {
       Spacer()
-      
-      Text("Swipe left if you remembered"
-           + "\nSwipe right if you didn’t")
-        .font(.headline)
-      
+
+      if !UIAccessibility.isVoiceOverRunning {
+        Text("Swipe left if you remembered"
+             + "\nSwipe right if you didn’t")
+          .font(.headline)
+      } else {
+        EmptyView()
+      }
+
       DeckView(
         deck: learningStore.deck,
         onMemorized: { learningStore.score += 1 }

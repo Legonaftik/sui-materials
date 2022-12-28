@@ -42,7 +42,7 @@ struct RegisterView: View {
 
       WelcomeMessageView()
 
-      TextField("Type your name...", text: $userManager.profile.name)
+      TextField("Type your name", text: $userManager.profile.name)
         .focused($nameFieldFocused)
         .submitLabel(.done)
         .onSubmit(registerUser)
@@ -51,6 +51,8 @@ struct RegisterView: View {
       HStack {
         Spacer()
         Text("\(userManager.profile.name.count)")
+          .accessibilityLabel("name has \(userManager.profile.name.count) letters")
+          .accessibilityHint("name needs 3 or more letters to enable OK button")
           .font(.caption)
           .foregroundColor(
             userManager.isUserNameValid() ? .green : .red)
@@ -79,6 +81,10 @@ struct RegisterView: View {
             .bold()
         }
       }
+      .accessibilityLabel("OK registers user")
+      .accessibilityHint("name needs 3 or more letters to enable this button")
+      .accessibilityValue(
+        userManager.isUserNameValid() ? "enabled" : "disabled")
       .bordered()
       .disabled(!userManager.isUserNameValid())
 
